@@ -17,7 +17,7 @@ Boolean Queue_Push(Queue* queue, uint8_t value)
 	if (!Queue_Overflowed(queue)) {
 		queue->size += 1;
 		queue->buffer[queue->backOfQueue] = value;
-		queue->backOfQueue++;
+		queue->backOfQueue = (queue->backOfQueue + 1) % queue->capacity;
 	}
 	else {
 		return FALSE;
@@ -28,8 +28,12 @@ Boolean Queue_Push(Queue* queue, uint8_t value)
 Boolean Queue_Pop(Queue* queue, uint8_t* value)
 {
 	if (!Queue_Empty(queue)) {
-		value = (uint8_t*)&queue->buffer[queue->frontOfQueue];
-		queue->frontOfQueue++;
+		//value = (uint8_t*)&queue->buffer[queue->frontOfQueue];
+		//*value = &queue->buffer[queue->frontOfQueue];
+		if (value != NULL) {
+			*value = queue->buffer[queue->frontOfQueue];
+		}
+		queue->frontOfQueue = (queue->frontOfQueue + 1) % queue->capacity;
 		queue->size--;
 		return TRUE;
 	}
