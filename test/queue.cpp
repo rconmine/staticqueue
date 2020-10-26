@@ -130,5 +130,32 @@ TEST(QueueOverflowed, Overflowed) {
     result = Queue_Pop(&q, NULL);
     ASSERT_EQ(result, TRUE) << "Expected result to be true: have elements for poping";
     ASSERT_EQ(Queue_Overflowed(&q), FALSE) << "The queue have space for new values, but Queue_Overflowed say that it is not have!";
+}
+
+TEST(QueueCycle, Cycle256) {
+    uint8_t buffer[256] = {0};
+    Queue q = Queue_Create(buffer, sizeof(buffer));
+
+    ASSERT_EQ(q.buffer, buffer) << "Buffer of queue: Invalid init";
+    ASSERT_EQ(q.capacity, 256) << "Capacity of queue calculated invalid";
+    ASSERT_EQ(q.size, 0) << "Queue has been initialzed with non-zero size";
+
+    // Push a lot of integers
+    for (int i = 0; i < 256; i++) {
+        Queue_Push(&q, i);
+        ASSERT_EQ(Queue_Size(&q), i+1) << "Expected size of " << i << " on iteration #" << i;
+    }
+
+    // Grab some
+    for (int i = 0; i < 256; i++) {
+        Queue_Pop(&q, NULL);
+        ASSERT_EQ(Queue_Size(&q), 255-i) << "Expected size of " << 255-i << " on iteration #" << i;;
+    }
+
+    // Push a lot of integers again. So queue must filled again
+    for (int i = 0; i < 256; i++) {
+        Queue_Push(&q, i);
+        ASSERT_EQ(Queue_Size(&q), i+1) << "Expected size of " << i << " on iteration #" << i;
+    }
 
 }
